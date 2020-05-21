@@ -32,7 +32,7 @@ const doctor = (db) => {
                     id: uuidv4().substr(0,5),
                     firstName: req.body.firstName,
                     lastName: req.body.lastName,
-                    specializations: req.body.specializations
+                    specializations: [req.body.specializations]
                 };
                 await db.collection("doctors").insertOne(doctor);
                 res.render('pages/success', {success: "Dodano lekarza"});
@@ -46,7 +46,7 @@ const doctor = (db) => {
                 const doctor = {
                     firstName: req.body.firstName,
                     lastName: req.body.lastName,
-                    specializations: req.body.specializations
+                    specializations: [req.body.specializations]
                 };
                 await db.collection("doctors").updateOne({id}, {$set: doctor});
                 res.render('pages/success', {success: "Zaktualizowano dane o lekarzu"});

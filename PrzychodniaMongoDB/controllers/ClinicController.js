@@ -80,7 +80,7 @@ const clinic = (db) => {
                 await db.collection("clinics").updateOne({id}, {$set: clinic});
                 if(doctors.length) {
                     for (const doctor of doctors) {
-                        await db.collection("doctors").updateOne({id: doctor.id}, {$addToSet: {clinics: {id: clinic.id, name: clinic.name}}});
+                        await db.collection("doctors").updateOne({id: doctor.id}, {$addToSet: {clinics: {id, name: clinic.name}}});
                     }
                 }
                 res.render('pages/success', {success: "Zaktualizowano przychodnię"});

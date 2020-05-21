@@ -29,7 +29,7 @@
                     <th scope="row"><%= doctor.id %></th>
                     <td><%= doctor.firstName %></td>
                     <td><%= doctor.lastName %></td>
-                    <td><%= doctor.clinics.length %></td>
+                    <td><%= doctor.clinics ? doctor.clinics.length : 0 %></td>
                     <td>
                         <a class="btn btn-success" type="button" href="/doctor/id/<%= doctor.id %>">Edytuj</a>
                         <a href="/doctor/id/<%= doctor.id %>/visit/new" type="button" class="btn btn-primary">Dodaj wizytę</a>
