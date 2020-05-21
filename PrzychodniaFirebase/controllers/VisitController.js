@@ -1,6 +1,9 @@
+const firebase = require("firebase");
 const { v4: uuidv4 } = require('uuid');
 
-const visit = (db) => {
+const visit = () => {
+    const database = firebase.database();
+
     const createObject = (input) => {
         let out = {};
         if(input) {
@@ -16,8 +19,13 @@ const visit = (db) => {
     return {
         getAllVisit: async(req, res) => {
             try {
-                const activeVisit = await db.collection("visits").find({status: "open"}).toArray();
-                const historyVisit = await db.collection("visits").find({status: "close"}).toArray();
+                const ref = database.ref("visits");
+                const dataOpen = await ref.orderByChild("status").equalTo("open").once("value");
+                const dataClose = await ref.orderByChild("status").equalTo("close").once("value");
+                const activeVisit = dataOpen.val() ? Object.values(dataOpen.val()) : [];
+                const historyVisit = dataClose.val() ? Object.values(dataClose.val()) : [];
+                console.log(activeVisit);
+                console.log(historyVisit);
                 res.render('pages/index', { activeVisit, historyVisit });
             } catch(err) {
                 console.error(err.message);
@@ -26,7 +34,8 @@ const visit = (db) => {
         getHistory: async(req, res) => {
             try {
                 const id = req.params.id;
-                const visit = await db.collection("visits").findOne({id: id});
+                const data = await database.ref(`visits/${id}`).once("value");
+                const visit = data.val();
                 res.render('pages/visit-id', { visit });
             } catch(err) {
                 console.error(err.message);
@@ -51,7 +60,7 @@ const visit = (db) => {
                         description: req.body.description
                     }
                 };
-                await db.collection("visits").updateOne({id}, {$set: visit});
+                await database.ref(`visits/${id}`).update(visit);
                 res.render('pages/success', {success: "Zarezerwowano wizytę"});
             } catch(err) {
                 console.error(err.message);
@@ -60,7 +69,8 @@ const visit = (db) => {
         addVisitGet: async(req, res) => {
             try {
                 const id = req.params.id;
-                const doctor = await db.collection("doctors").findOne({id: id});
+                const data = await database.ref(`doctors/${id}`).once("value");
+                const doctor = data.val();
                 res.render('pages/visit-new', {doctor});
             } catch(err) {
                 console.error(err.message);
@@ -81,7 +91,7 @@ const visit = (db) => {
                     status: 'open',
                     clinic
                 };
-                await db.collection("visits").insertOne(visit);
+                await database.ref(`visits/${visit.id}`).set(visit);
                 res.render('pages/success', {success: "Dodano wizytę"});
             } catch(err) {
                 console.error(err.message);
