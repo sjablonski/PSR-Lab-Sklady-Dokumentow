@@ -19,6 +19,20 @@ const clinic = () => {
         return out;
     }
 
+    const updateDoctors = async(clinic, doctors) => {
+        if(doctors.length) {
+            for (const doctor of doctors) {
+                const clinicsRef = database.ref(`doctors/${doctor.id}/clinics`);
+                const data = await clinicsRef.once("value");
+                let clinics = data.val() ? Object.values(data.val()) : [];
+                clinics = clinics.filter(item => {
+                    return item.id !== id;
+                });
+                await clinicsRef.set([...clinics, clinic]);
+            }
+        }
+    }
+
     return {
         getAllClinics: async(req, res) => {
             try {
@@ -62,11 +76,7 @@ const clinic = () => {
                     doctors
                 };
                 await database.ref(`clinics/${clinic.id}`).set(clinic);
-                if(doctors.length) {
-                    for (const doctor of doctors) {
-                        await database.ref(`doctors/${doctor.id}/clinics`).set([{id: clinic.id, name: clinic.name}]);
-                    }
-                }
+                await updateDoctors({id: clinic.id, name: clinic.name}, doctors);
                 res.render('pages/success', {success: "Dodano nową przychodnię"});
             } catch(err) {
                 console.error(err.message);
@@ -84,11 +94,7 @@ const clinic = () => {
                     doctors
                 };
                 await database.ref(`clinics/${id}`).update(clinic);
-                if(doctors.length) {
-                    for (const doctor of doctors) {
-                        await database.ref(`doctors/${doctor.id}/clinics`).set([{id, name: clinic.name}]);
-                    }
-                }
+                await updateDoctors({id, name: clinic.name}, doctors);
                 res.render('pages/success', {success: "Zaktualizowano przychodnię"});
             } catch(err) {
                 console.error(err.message);
@@ -97,15 +103,17 @@ const clinic = () => {
         deleteClinic: async(req, res) => {
             try {
                 const id = req.body.id;
-                const data = await database.ref(`clinics/${id}/doctors`).once("value");
-                const doctors = data.val();
+                const doctorsRef = database.ref(`clinics/${id}/doctors`);
+                const data = await doctorsRef.once("value");
+                const doctors = data.val() ? Object.values(data.val()) : [];
                 for(const doctor of doctors) {
-                    const data = await database.ref(`doctors/${doctor.id}/clinics`).once("value");
+                    const clinicsRef = database.ref(`doctors/${doctor.id}/clinics`);
+                    const data = await clinicsRef.once("value");
                     let clinics = data.val() ? Object.values(data.val()) : [];
                     clinics = clinics.filter(item => {
                        return item.id !== id;
                     });
-                    await database.ref(`doctors/${doctor.id}/clinics`).set(clinics);
+                    await clinicsRef.set(clinics);
                 }
                 await database.ref(`clinics/${id}`).remove();
 

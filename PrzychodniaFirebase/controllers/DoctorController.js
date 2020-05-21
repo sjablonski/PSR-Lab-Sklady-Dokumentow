@@ -62,11 +62,19 @@ const doctor = () => {
         deleteDoctor: async(req, res) => {
             try {
                 const id = req.body.id;
+                const clinicsRef = database.ref(`doctors/${id}/clinics`);
+                const data = await clinicsRef.once("value");
+                const clinics = data.val() ? Object.values(data.val()) : [];
+                for(const clinic of clinics) {
+                    const doctorsRef = database.ref(`clinics/${clinic.id}/doctors`);
+                    const data = await doctorsRef.once("value");
+                    let doctors = data.val() ? Object.values(data.val()) : [];
+                    doctors = doctors.filter(item => {
+                        return item.id !== id;
+                    });
+                    await doctorsRef.set(doctors);
+                }
                 await database.ref(`doctors/${id}`).remove();
-                // await db.collection("clinics").update(
-                //     { "doctors.id": id },
-                //     { $pull: { 'doctors': { id } } }
-                // );
                 res.render('pages/success', {success: "Usunięto lekarza"});
             } catch(err) {
                 console.error(err.message);

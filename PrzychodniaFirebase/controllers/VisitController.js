@@ -24,8 +24,6 @@ const visit = () => {
                 const dataClose = await ref.orderByChild("status").equalTo("close").once("value");
                 const activeVisit = dataOpen.val() ? Object.values(dataOpen.val()) : [];
                 const historyVisit = dataClose.val() ? Object.values(dataClose.val()) : [];
-                console.log(activeVisit);
-                console.log(historyVisit);
                 res.render('pages/index', { activeVisit, historyVisit });
             } catch(err) {
                 console.error(err.message);
