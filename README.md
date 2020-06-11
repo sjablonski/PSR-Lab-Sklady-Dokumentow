@@ -11,5 +11,5 @@ Do stworzenia aplikacji zostały wykorzystane biblioteki takie jak:
 - express: `https://www.npmjs.com/package/express`
 - method-override: `https://www.npmjs.com/package/method-override`
 - uuid: `https://www.npmjs.com/package/uuid`
-- firebase: `https://www.npmjs.com/package/firebase`
-- mongodb: `https://www.npmjs.com/package/mongodb`
+- DataStax Node.js Driver for Apache Cassandra®: `https://www.npmjs.com/package/cassandra-driver`
+- InfluxDB: `https://www.npmjs.com/package/influx`
